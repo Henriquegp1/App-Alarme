@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">OW Match Alarm</string>
+    <string name="config_conexao">Configurações de Conexão</string>
+    <string name="status_desconectado">● Desconectado</string>
+    <string name="status_conectando">● Conectando&#8230;</string>
+    <string name="status_conectado">● Conectado</string>
+    <string name="status_erro_auth">● Erro de autenticação</string>
+    <string name="status_ip_inacessivel">● IP inacessível</string>
+    <string name="status_bloqueio_temp">● Bloqueio temporário</string>
+    <string name="btn_conectar">Conectar</string>
+    <string name="btn_desconectar">Desconectar</string>
+    <string name="btn_scan_qr">Ler QR Code do PC</string>
+    <string name="btn_back">Voltar</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Configurações</string>
+    <string name="alarm_sound_section">Som do Alarme</string>
+    <string name="select_sound_btn">Selecionar Novo Som</string>
+    <string name="test_sound_btn">Testar Alerta Completo</string>
+    <string name="current_sound_label">Som selecionado:</string>
+    <string name="default_sound_name">Padrão (Overwatch)</string>
+    <string name="custom_sound_uri_key">custom_sound_uri</string>
+    <string name="custom_sound_name_key">custom_sound_name</string>
+
+    <!-- Alerta Customization -->
+    <string name="alert_custom_section">Personalização do Alerta</string>
+    <string name="label_volume">Volume do Alarme</string>
+    <string name="label_vibration">Padrão de Vibração</string>
+    <string name="vibr_short">Curto</string>
+    <string name="vibr_long">Longo</string>
+    <string name="vibr_heartbeat">Pulsação</string>
+    <string name="label_duration">Duração (segundos)</string>
+
+    <string name="pref_volume_key">pref_volume</string>
+    <string name="pref_vibration_key">pref_vibration</string>
+    <string name="pref_duration_key">pref_duration</string>
+
+    <string name="battery_optimization_section">Estabilidade (Bateria)</string>
+    <string name="battery_optimization_desc">O Android pode fechar o app para economizar bateria se ele ficar muito tempo em segundo plano. Para garantir que o alarme sempre toque, desative a otimização para este app.</string>
+    <string name="battery_status_label">Status de Execução:</string>
+    <string name="battery_status_optimized">⚠️ Não Otimizado (Risco de fechamento)</string>
+    <string name="battery_status_protected">✅ Protegido (Execução estável)</string>
+    <string name="battery_optimization_btn_on">Configurar Bateria</string>
+    <string name="battery_optimization_btn_off">Otimização Desativada</string>
+    <string name="main_battery_warning">O Android pode fechar o app. Toque para corrigir.</string>
+
+    <!-- Profiles & Security -->
+    <string name="security_section">Segurança e Perfis</string>
+    <string name="clear_credentials_btn">Apagar Todas as Credenciais</string>
+    <string name="save_profile_btn">Salvar Perfil</string>
+    <string name="profile_name_hint">Nome do Perfil (ex: Meu PC)</string>
+    <string name="select_profile_label">Selecionar Perfil:</string>
+    <string name="profile_saved">Perfil salvo com sucesso!</string>
+    <string name="credentials_cleared">Todas as credenciais foram apagadas.</string>
+
+    <!-- History -->
+    <string name="history_section">Atividade Recente</string>
+    <string name="btn_clear_history">Limpar</string>
+    <string name="no_history">Nenhuma atividade registrada.</string>
+</resources>

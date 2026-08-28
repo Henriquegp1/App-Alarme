@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.henrique.owalarm'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.henrique.owalarm"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Cliente WebSocket — mantém a conexão com o servidor no PC.
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Leitura de QR Code (embala a lib ZXing com uma Activity pronta).
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Segurança - Criptografia para SharedPreferences
+    implementation 'androidx.security:security-crypto:1.1.0'
+}

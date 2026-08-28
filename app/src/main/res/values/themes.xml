@@ -1,0 +1,35 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.OwAlarm" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryVariant">@color/orange_pressed</item>
+        <item name="colorOnPrimary">@color/orange_text_on</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/blue_pressed</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/bg_app</item>
+        <item name="android:navigationBarColor">@color/bg_app</item>
+    </style>
+    <color name="bg_app">#131415</color>
+    <color name="bg_card">#1C1E20</color>
+    <color name="border_card">#2E3134</color>
+
+    <color name="orange">#F99E1A</color>
+    <color name="orange_pressed">#D98014</color>
+    <color name="orange_text_on">#1A1A1A</color>
+
+    <color name="blue">#3E9BD9</color>
+    <color name="blue_pressed">#2F7FB3</color>
+
+    <color name="gray_btn">#33373A</color>
+    <color name="gray_btn_pressed">#40454A</color>
+
+    <color name="text_primary">#F2F2F2</color>
+    <color name="text_muted">#8A9096</color>
+
+    <color name="green_ok">#3BD16F</color>
+    <color name="yellow_alert">#FFC107</color>
+    <color name="red_danger">#E5484D</color>
+</resources>
