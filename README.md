@@ -1,45 +1,69 @@
 # OW Match Alarm — App Android (Etapa 2)
 
-## Como abrir
+**Licença:** este projeto é gratuito para uso pessoal e não-comercial, sob a [PolyForm Noncommercial License 1.0.0](LICENSE). Uso comercial (venda, revenda ou distribuição paga) não é permitido sem autorização do autor.  
+**Autor:** Henrique Gonçalves Pereira — [github.com/Henriquegp1](https://github.com/Henriquegp1)  
+Se quiser apoiar o projeto, considere uma doação: https://ko-fi.com/henweekz
 
-1. Abra o **Android Studio**.
-2. `File > Open` e selecione a pasta `OwAlarm` (a pasta raiz deste zip,
-   que contém `build.gradle`, `settings.gradle` e `app/`).
-3. Deixe o Android Studio baixar o Gradle Wrapper e sincronizar
-   sozinho na primeira abertura (ele gera os arquivos de wrapper que
-   não vieram neste zip — isso é normal e automático).
+O **OwAlarm** é a parte mobile do sistema Overwatch Match Alarm. Este aplicativo Android se conecta ao sistema rodando no seu PC via WebSocket para alertar instantaneamente (com som e vibração personalizada) quando uma partida for encontrada.
 
-## Antes de compilar (obrigatório)
+---
 
-- Coloque um arquivo `alarme.mp3` em `app/src/main/res/raw/`
-  (veja o `LEIA_ANTES_DE_COMPILAR.txt` que está lá). Sem isso o app
-  compila normalmente, mas o alarme sonoro não toca.
-- Você vai precisar de um ícone de app (`ic_launcher`). Se não
-  fornecer um, o Android Studio geralmente usa um placeholder padrão
-  — não é bloqueante para rodar em modo debug.
+## 🚀 Principais Funcionalidades
 
-## Como testar
+- **Conexão Instantânea**: Leitura de QR Code ou entrada manual de IP para conexão via WebSocket.
+- **Notificação Persistente**: Acompanhe o status da conexão diretamente na barra de notificações e desconecte com um toque.
+- **Personalização de Alerta**:
+  - Troque o som do alarme por qualquer arquivo de áudio do seu celular.
+  - Ajuste o volume do alarme independente do sistema.
+  - Escolha entre diferentes padrões de vibração (Curto, Longo ou Pulsação).
+- **Gerenciamento de Perfis**: Salve múltiplos PCs (casa, trabalho, etc.) com nomes personalizados e credenciais criptografadas.
+- **Histórico de Atividade**: Log em tempo real de conexões, alarmes recebidos e confirmações enviadas ao PC.
+- **Segurança**: Armazenamento de senhas e tokens utilizando o **Android Keystore** (criptografia AES-256).
+- **Guia de Estabilidade**: Detector integrado de otimização de bateria para garantir que o Android não feche o app em segundo plano.
 
-1. Rode o cliente PC (Etapa 1) e clique em "Iniciar Monitoramento".
-2. Anote o IP e porta mostrados na tela do PC (ou use o QR Code).
-3. No celular, com o app aberto: toque em "Ler QR Code do PC" e
-   aponte a câmera, OU digite manualmente `IP:PORTA` no campo de
-   texto e toque em "Conectar".
-4. **Celular e PC precisam estar na mesma rede Wi-Fi/LAN.** Rede
-   móvel (4G/5G) não enxerga o servidor local — isso é uma limitação
-   de rede, não um bug do app.
-5. Force uma "Partida Encontrada" no jogo (ou rode `teste_matching.py`
-   manualmente no PC) e confira se o celular vibra e toca o alarme.
+---
 
-## Limitações conhecidas (leia antes de reportar bug)
+## 🛠️ Como Abrir e Compilar
 
-- Sem TLS: a conexão é `ws://`, não `wss://`. Funciona bem numa rede
-  doméstica confiável, mas qualquer dispositivo na mesma rede local
-  teoricamente consegue conectar no servidor do PC — sem autenticação.
-- Alguns fabricantes de Android (Xiaomi, Samsung, Huawei) têm gerenciamento
-  de bateria agressivo que mata Foreground Services mesmo com WakeLock.
-  Se o alarme parar de funcionar depois de um tempo com a tela apagada,
-  procure "otimização de bateria" nas configurações do celular e
-  desative para este app especificamente.
-- O ícone do app e o app icon completo (mipmap) não foram incluídos —
-  o Android Studio usa um placeholder até você adicionar o seu.
+1. **Requisitos**: Android Studio Hedgehog (ou superior).
+2. **Abrir**: `File > Open` e selecione a pasta `OwAlarm`.
+3. **Sincronização**: O Gradle baixará as dependências automaticamente na primeira abertura.
+4. **Recursos Obrigatórios**:
+   - Coloque um arquivo `alarme.mp3` em `app/src/main/res/raw/` para o som padrão.
+   - O ícone do app pode ser personalizado via `New > Image Asset` no Android Studio.
+
+---
+
+## 📱 Como Usar
+
+1. Certifique-se de que o **Cliente PC** está rodando e com o monitoramento iniciado.
+2. **Conectar**:
+   - No app, toque em **"Ler QR Code"** e aponte para a tela do PC.
+   - OU digite o `IP:PORTA` e a senha manualmente.
+3. **Configurações**: Toque no ícone de engrenagem (topo direito) para:
+   - Trocar o som do alarme.
+   - Ajustar vibração e volume.
+   - **IMPORTANTE**: Toque em "Desativar Otimização de Bateria" para garantir que o alarme toque mesmo após horas com a tela apagada.
+4. **Perfis**: Salve suas configurações de rede na seção "Segurança e Perfis" para conexões futuras mais rápidas.
+
+---
+
+## ⚠️ Solução de Problemas
+
+- **Não conecta**: Verifique se o Celular e o PC estão na **mesma rede Wi-Fi**. O Firewall do Windows também deve permitir a porta 8000.
+- **O alarme não toca em segundo plano**: Verifique o "Status de Execução" nas configurações do app e certifique-se de que ele está como **"Protegido"**.
+- **Erro de Autenticação**: Verifique se o código da sessão (token) ou a senha configurada no PC coincidem com o que foi digitado no app.
+
+---
+
+## 📦 Gerar Versão para Distribuição (APK)
+
+Para mandar o app para outras pessoas ou postar no GitHub:
+1. Vá em `Build > Generate Signed Bundle / APK`.
+2. Selecione **APK** e clique em `Next`.
+3. Crie ou selecione uma **Key Store** (Chave de Assinatura).
+4. Escolha o destino e selecione a variante de build **release**.
+5. O arquivo final estará em `app/release/app-release.apk`.
+
+---
+*Desenvolvido como parte do ecossistema Overwatch Match Alarm.*
