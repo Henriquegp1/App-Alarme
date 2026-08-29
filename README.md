@@ -67,3 +67,8 @@ Para mandar o app para outras pessoas ou postar no GitHub:
 
 ---
 *Desenvolvido como parte do ecossistema Overwatch Match Alarm.*
+
+## 🖥️ Cliente PC (Windows)
+
+Este aplicativo Android é o complemento do sistema para PC. O código-fonte e o instalador do cliente Windows estão disponíveis em:
+👉 [github.com/Henriquegp1/Alarme-Overwach](https://github.com/Henriquegp1/Alarme-Overwach)
