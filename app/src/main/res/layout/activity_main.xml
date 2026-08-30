@@ -36,9 +36,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GAME SENTINEL"
+                    android:text="@string/app_name"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
+                    android:textAllCaps="true"
                     android:textStyle="bold" />
 
                 <TextView
@@ -89,11 +90,118 @@
                 android:id="@+id/label_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/status_desconectado"
                 android:textColor="@color/text_muted"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/container_active_game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_label"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/txt_active_game"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_waiting"
+                    android:textColor="@color/accent_overwatch"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Controle Remoto do PC -->
+            <LinearLayout
+                android:id="@+id/container_remote_control"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/border_card"
+                    android:layout_marginBottom="16dp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/remote_control_label"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txt_pc_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/pc_status_none"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_remote_start"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/btn_secondary_bg"
+                        app:backgroundTint="@null"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/btn_remote_start"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp" />
+
+                    <Button
+                        android:id="@+id/btn_remote_stop"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/btn_neutral_bg"
+                        app:backgroundTint="@null"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/btn_remote_stop"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- Botões de ação rápida -->
             <LinearLayout
@@ -206,12 +314,16 @@
                 android:layout_marginBottom="12dp">
 
                 <TextView
+                    android:id="@+id/btn_toggle_logs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/history_section"
                     android:textColor="@color/text_muted"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:drawablePadding="8dp" />
 
                 <TextView
                     android:id="@+id/btn_clear_logs"
@@ -226,14 +338,22 @@
                     android:focusable="true" />
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/txt_logs"
+            <LinearLayout
+                android:id="@+id/container_logs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/no_history"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                android:lineSpacingExtra="4dp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txt_logs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_history"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

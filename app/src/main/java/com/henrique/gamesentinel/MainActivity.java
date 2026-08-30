@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Objects;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,9 +42,29 @@ public class MainActivity extends AppCompatActivity {
     private TextView labelStatus;
     private TextView txtLogs;
     private TextView txtBatteryWarning;
+    private TextView txtActiveGame;
+    private TextView txtPcStatus;
+    private View containerActiveGame;
+    private View containerRemoteControl;
+    private View containerLogs;
     private SharedPreferences prefs;
 
-    private final AlarmForegroundService.OnStatusChangeListener listenerStatus = this::atualizarStatusUI;
+    private final AlarmForegroundService.OnStatusChangeListener listenerStatus = new AlarmForegroundService.OnStatusChangeListener() {
+        @Override
+        public void onStatusChanged(AlarmForegroundService.Status status) {
+            atualizarStatusUI(status);
+        }
+
+        @Override
+        public void onGameChanged(String gameName) {
+            atualizarJogoUI(gameName);
+        }
+
+        @Override
+        public void onPcMonitorStatusChanged(String pcStatus) {
+            atualizarPcMonitorUI(pcStatus);
+        }
+    };
 
     private final LogManager.OnLogChangeListener listenerLog = this::refreshLogs;
 
@@ -51,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             registerForActivityResult(new ScanContract(), result -> {
                 if (result.getContents() != null) {
                     preencherComQr(result.getContents());
-                    Toast.makeText(this, "QR Code lido", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_qr_read, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -65,13 +86,27 @@ public class MainActivity extends AppCompatActivity {
         labelStatus = findViewById(R.id.label_status);
         txtLogs = findViewById(R.id.txt_logs);
         txtBatteryWarning = findViewById(R.id.txt_battery_warning);
+        txtActiveGame = findViewById(R.id.txt_active_game);
+        txtPcStatus = findViewById(R.id.txt_pc_status);
+        containerActiveGame = findViewById(R.id.container_active_game);
+        containerRemoteControl = findViewById(R.id.container_remote_control);
+        containerLogs = findViewById(R.id.container_logs);
         ImageButton btnSettings = findViewById(R.id.btn_settings);
         Button btnScan = findViewById(R.id.btn_scan_qr);
         Button btnConectar = findViewById(R.id.btn_conectar);
         Button btnDesconectar = findViewById(R.id.btn_desconectar);
+        Button btnRemoteStart = findViewById(R.id.btn_remote_start);
+        Button btnRemoteStop = findViewById(R.id.btn_remote_stop);
         TextView btnClearLogs = findViewById(R.id.btn_clear_logs);
+        TextView btnToggleLogs = findViewById(R.id.btn_toggle_logs);
 
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        
+        // Carregar estado de visibilidade dos logs
+        boolean logsVisible = prefs.getBoolean("logs_visible", true);
+        containerLogs.setVisibility(logsVisible ? View.VISIBLE : View.GONE);
+        btnToggleLogs.setText(logsVisible ? R.string.hide_logs : R.string.show_logs);
+
         String enderecoSalvo = prefs.getString(KEY_ENDERECO, "");
         if (!TextUtils.isEmpty(enderecoSalvo)) {
             editIp.setText(enderecoSalvo);
@@ -108,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
         editSenha.addTextChangedListener(disconnectWatcher);
 
         atualizarStatusUI(AlarmForegroundService.ultimoStatus);
+        atualizarJogoUI(AlarmForegroundService.jogoAtivo);
+        atualizarPcMonitorUI(AlarmForegroundService.statusMonitorPc);
 
         btnSettings.setOnClickListener(v -> {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -119,13 +156,13 @@ public class MainActivity extends AppCompatActivity {
         btnConectar.setOnClickListener(v -> {
             String credencial = editSenha.getText().toString().trim();
             if (TextUtils.isEmpty(credencial)) {
-                Toast.makeText(this, "Digite o código da sessão ou a senha", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_input_token, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             String url = montarUrlWebSocket(editIp.getText().toString().trim(), credencial);
             if (url == null) {
-                Toast.makeText(this, "Digite um IP válido (ex: 192.168.0.10:8000)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_input_ip, Toast.LENGTH_SHORT).show();
                 return;
             }
             prefs.edit()
@@ -157,6 +194,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         });
+
+        btnRemoteStart.setOnClickListener(v -> AlarmForegroundService.enviarComandoRemoto("iniciar"));
+        btnRemoteStop.setOnClickListener(v -> AlarmForegroundService.enviarComandoRemoto("parar"));
+
+        btnToggleLogs.setOnClickListener(v -> {
+            boolean isVisible = containerLogs.getVisibility() == View.VISIBLE;
+            containerLogs.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+            btnToggleLogs.setText(isVisible ? R.string.show_logs : R.string.hide_logs);
+            prefs.edit().putBoolean("logs_visible", !isVisible).apply();
+        });
     }
 
     @Override
@@ -184,6 +231,57 @@ public class MainActivity extends AppCompatActivity {
                 sb.append(log).append("\n");
             }
             txtLogs.setText(sb.toString().trim());
+        }
+    }
+
+    private void atualizarJogoUI(String nome) {
+        if (nome == null || nome.isEmpty()) {
+            containerActiveGame.setVisibility(View.GONE);
+        } else {
+            containerActiveGame.setVisibility(View.VISIBLE);
+            txtActiveGame.setText(nome);
+            
+            // Mudar cor conforme o jogo
+            int activeColorRes = R.color.accent_generic;
+            String lower = nome.toLowerCase();
+            if (lower.contains("overwatch")) activeColorRes = R.color.accent_overwatch;
+            else if (lower.contains("valorant")) activeColorRes = R.color.accent_valorant;
+            else if (lower.contains("dead") || lower.contains("dbd")) activeColorRes = R.color.accent_dbd;
+            
+            txtActiveGame.setTextColor(ContextCompat.getColor(this, activeColorRes));
+        }
+    }
+
+    private void atualizarPcMonitorUI(String pcStatus) {
+        if (AlarmForegroundService.ultimoStatus != AlarmForegroundService.Status.CONECTADO || pcStatus == null) {
+            containerRemoteControl.setVisibility(View.GONE);
+        } else {
+            containerRemoteControl.setVisibility(View.VISIBLE);
+            int color = ContextCompat.getColor(this, R.color.text_muted);
+            String statusName;
+            
+            switch (pcStatus) {
+                case "MONITORANDO":
+                    statusName = getString(R.string.pc_status_monitoring);
+                    color = ContextCompat.getColor(this, R.color.green_ok);
+                    findViewById(R.id.btn_remote_start).setEnabled(false);
+                    findViewById(R.id.btn_remote_stop).setEnabled(true);
+                    break;
+                case "COOLDOWN":
+                    statusName = getString(R.string.pc_status_cooldown);
+                    color = ContextCompat.getColor(this, R.color.yellow_alert);
+                    findViewById(R.id.btn_remote_start).setEnabled(false);
+                    findViewById(R.id.btn_remote_stop).setEnabled(true);
+                    break;
+                case "PRONTO":
+                default:
+                    statusName = getString(R.string.pc_status_idle);
+                    findViewById(R.id.btn_remote_start).setEnabled(true);
+                    findViewById(R.id.btn_remote_stop).setEnabled(false);
+                    break;
+            }
+            txtPcStatus.setText(getString(R.string.pc_status_prefix, statusName));
+            txtPcStatus.setTextColor(color);
         }
     }
 
@@ -254,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
     private void iniciarLeituraQr() {
         ScanOptions options = new ScanOptions();
         options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
-        options.setPrompt("Aponte para o QR Code exibido no PC");
+        options.setPrompt(getString(R.string.qr_prompt));
         options.setBeepEnabled(false);
         options.setOrientationLocked(true);
         qrLauncher.launch(options);

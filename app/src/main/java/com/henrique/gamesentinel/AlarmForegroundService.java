@@ -5,10 +5,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.service.quicksettings.TileService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -45,9 +47,13 @@ public class AlarmForegroundService extends Service {
     }
 
     public static volatile Status ultimoStatus = Status.DESCONECTADO;
+    public static volatile String jogoAtivo = null;
+    public static volatile String statusMonitorPc = null;
 
     public interface OnStatusChangeListener {
         void onStatusChanged(Status status);
+        void onGameChanged(String gameName);
+        void onPcMonitorStatusChanged(String pcStatus);
     }
 
     private static OnStatusChangeListener statusListener;
@@ -56,6 +62,8 @@ public class AlarmForegroundService extends Service {
         statusListener = listener;
         if (listener != null) {
             listener.onStatusChanged(ultimoStatus);
+            listener.onGameChanged(jogoAtivo);
+            listener.onPcMonitorStatusChanged(statusMonitorPc);
         }
     }
 
@@ -72,15 +80,48 @@ public class AlarmForegroundService extends Service {
     private Vibrator vibrator;
 
     private String urlAtual;
+    private String deviceId;
     private boolean deveReconectar = false;
+
+    private static AlarmForegroundService instance;
+
+    public static void enviarComandoRemoto(String comando) {
+        switch (ultimoStatus) {
+            case CONECTANDO:
+            case CONECTADO:
+                if (instance != null && instance.webSocket != null) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("tipo", "comando_remoto");
+                        json.put("comando", comando);
+                        instance.webSocket.send(json.toString());
+                        LogManager.addLog(instance, instance.getString(R.string.log_remote_cmd, comando));
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error sending remote command", e);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         client = new OkHttpClient.Builder()
                 .pingInterval(20, TimeUnit.SECONDS)
                 .build();
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        
+        SharedPreferences prefs = getSharedPreferences("ow_alarm_prefs", MODE_PRIVATE);
+        deviceId = prefs.getString("device_id", null);
+        if (deviceId == null) {
+            deviceId = java.util.UUID.randomUUID().toString();
+            prefs.edit().putString("device_id", deviceId).apply();
+        }
+        
         criarCanalNotificacao();
     }
 
@@ -111,7 +152,7 @@ public class AlarmForegroundService extends Service {
     }
 
     private void iniciarComoForeground() {
-        atualizarNotificacao("Aguardando partida...");
+        atualizarNotificacao(getString(R.string.status_waiting));
     }
 
     private void adquirirWakeLock() {
@@ -122,9 +163,8 @@ public class AlarmForegroundService extends Service {
     }
 
     private void conectar(String url) {
-        // Se já existir uma conexão, fecha ela antes de abrir uma nova para evitar bugs
         if (webSocket != null) {
-            webSocket.close(1000, "Reiniciando conexão");
+            webSocket.close(1000, getString(R.string.restarting_connection));
             webSocket = null;
         }
 
@@ -133,86 +173,87 @@ public class AlarmForegroundService extends Service {
             @Override
             public void onOpen(@androidx.annotation.NonNull WebSocket ws, @androidx.annotation.NonNull Response response) {
                 Log.i(TAG, "Conectado: " + url);
-                LogManager.addLog(AlarmForegroundService.this, "Conectado ao PC");
+                
+                try {
+                    JSONObject reg = new JSONObject();
+                    reg.put("tipo", "registrar_dispositivo");
+                    reg.put("device_id", deviceId);
+                    ws.send(reg.toString());
+                } catch (Exception e) {
+                    Log.e(TAG, "Error sending registration", e);
+                }
+
+                LogManager.addLog(AlarmForegroundService.this, getString(R.string.log_connected));
                 enviarStatus(Status.CONECTADO);
-                atualizarNotificacao("Conectado — aguardando partida...");
+                atualizarNotificacao(getString(R.string.status_conectado) + " — " + getString(R.string.status_waiting));
             }
 
             @Override
-            public void onMessage(WebSocket ws, String text) {
-                Log.i(TAG, "Mensagem recebida: " + text);
+            public void onMessage(@androidx.annotation.NonNull WebSocket ws, @androidx.annotation.NonNull String text) {
                 try {
                     JSONObject json = new JSONObject(text);
                     String status = json.optString("status");
+                    String tipo = json.optString("tipo");
                     
                     if ("PARTIDA_ENCONTRADA".equals(status)) {
-                        LogManager.addLog(AlarmForegroundService.this, "⚠️ PARTIDA ENCONTRADA!");
+                        LogManager.addLog(AlarmForegroundService.this, getString(R.string.log_match_found));
                         dispararAlarme();
+                    } else if ("perfil_ativo".equals(tipo)) {
+                        atualizarJogo(json.optString("nome"));
+                    } else if ("status_monitor".equals(tipo)) {
+                        boolean ativo = json.optBoolean("ativo");
+                        boolean cooldown = json.optBoolean("cooldown");
+                        String novoStatusPc = cooldown ? "COOLDOWN" : (ativo ? "MONITORANDO" : "PRONTO");
+                        atualizarStatusMonitorPc(novoStatusPc);
                     } else if ("TESTE_ALARME".equals(status) || "TESTE".equals(status)) {
-                        LogManager.addLog(AlarmForegroundService.this, "🧪 Teste recebido do PC");
+                        LogManager.addLog(AlarmForegroundService.this, getString(R.string.log_test_pc));
                         dispararAlarme();
-                    } else if ("ping".equals(json.optString("tipo"))) {
-                        // Responde ao ping de verificação manual do PC.
-                        // Sem isso, o botão "verificar conexão agora" do
-                        // PC nunca tem como confirmar que essa conexão
-                        // ainda está viva -- precisa de uma resposta de
-                        // volta, não só conseguir mandar o ping.
+                    } else if ("ping".equals(tipo)) {
                         JSONObject pong = new JSONObject();
                         pong.put("tipo", "pong");
                         ws.send(pong.toString());
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "Mensagem em formato inesperado: " + text, e);
+                    Log.e(TAG, "Error processing message", e);
                 }
             }
 
             @Override
-            public void onClosing(WebSocket ws, int code, String reason) {
-                ws.close(1000, null);
-            }
-
-            @Override
             public void onFailure(@androidx.annotation.NonNull WebSocket ws, @androidx.annotation.NonNull Throwable t, Response response) {
-                Log.e(TAG, "Conexão caiu: " + t.getMessage());
-                
                 Status erroStatus;
-                String mensagemNotif;
+                String msg;
 
                 if (response != null) {
                     int code = response.code();
                     if (code == 401 || code == 403) {
                         erroStatus = Status.ERRO_AUTENTICACAO;
-                        mensagemNotif = "Erro de autenticação — verifique a senha.";
-                        deveReconectar = false; // Para de tentar se a senha está errada
+                        msg = getString(R.string.err_auth_failed);
+                        deveReconectar = false;
                     } else if (code == 429) {
                         erroStatus = Status.BLOQUEIO_TEMPORARIO;
-                        mensagemNotif = "Muitas tentativas — bloqueio temporário.";
+                        msg = getString(R.string.err_too_many_attempts);
                         deveReconectar = false;
                     } else {
                         erroStatus = Status.CONECTANDO;
-                        mensagemNotif = "Conexão perdida — reconectando...";
+                        msg = getString(R.string.err_connection_lost);
                     }
                 } else {
-                    // Sem resposta (response == null) geralmente indica erro de rede/IP
                     erroStatus = Status.IP_INACESSIVEL;
-                    mensagemNotif = "IP inacessível — verifique a rede e o PC.";
+                    msg = getString(R.string.err_ip_unreachable);
                 }
 
                 enviarStatus(erroStatus);
-                atualizarNotificacao(mensagemNotif);
-                LogManager.addLog(AlarmForegroundService.this, "Erro: " + mensagemNotif);
-                
-                if (deveReconectar) {
-                    agendarReconexao();
-                }
+                atualizarNotificacao(msg);
+                LogManager.addLog(AlarmForegroundService.this, msg);
+                if (deveReconectar) agendarReconexao();
             }
 
             @Override
-            public void onClosed(WebSocket ws, int code, String reason) {
+            public void onClosed(@androidx.annotation.NonNull WebSocket ws, int code, @androidx.annotation.NonNull String reason) {
                 if (deveReconectar) {
                     enviarStatus(Status.CONECTANDO);
+                    agendarReconexao();
                 }
-                agendarReconexao();
             }
         });
     }
@@ -225,13 +266,20 @@ public class AlarmForegroundService extends Service {
     }
 
     private void dispararAlarme() {
-        atualizarNotificacao("PARTIDA ENCONTRADA!");
-        
         SharedPreferences prefs = getSharedPreferences("ow_alarm_prefs", MODE_PRIVATE);
-        int volumeProgress = prefs.getInt(getString(R.string.pref_volume_key), 80);
-        float volume = volumeProgress / 100f;
-        int vibrType = prefs.getInt(getString(R.string.pref_vibration_key), 1);
+        
+        // Se a opção de tela cheia estiver ativa, abre a Activity de Alerta
+        boolean fullScreen = prefs.getBoolean(getString(R.string.pref_full_screen_key), true);
+        if (fullScreen) {
+            Intent alertIntent = new Intent(this, AlarmAlertActivity.class);
+            alertIntent.putExtra("game_name", jogoAtivo);
+            alertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+            startActivity(alertIntent);
+        }
 
+        atualizarNotificacao(getString(R.string.log_match_found));
+        float volume = prefs.getInt(getString(R.string.pref_volume_key), 80) / 100f;
+        int vibrType = prefs.getInt(getString(R.string.pref_vibration_key), 1);
         tocarSom(volume);
         vibrar(vibrType);
         confirmarRecebimentoAoPc();
@@ -240,73 +288,61 @@ public class AlarmForegroundService extends Service {
     private void confirmarRecebimentoAoPc() {
         if (webSocket != null) {
             try {
-                JSONObject confirmacao = new JSONObject();
-                confirmacao.put("status", "ALARME_RECEBIDO_CELULAR");
-                confirmacao.put("timestamp", System.currentTimeMillis());
-                webSocket.send(confirmacao.toString());
-                Log.i(TAG, "Confirmação de alarme enviada ao PC");
-                LogManager.addLog(this, "Confirmação enviada ao PC");
+                JSONObject json = new JSONObject();
+                json.put("status", "ALARME_RECEBIDO_CELULAR");
+                json.put("timestamp", System.currentTimeMillis());
+                webSocket.send(json.toString());
+                LogManager.addLog(this, getString(R.string.log_confirm_sent));
             } catch (Exception e) {
-                Log.e(TAG, "Erro ao enviar confirmação ao PC", e);
+                Log.e(TAG, "Error confirming", e);
             }
         }
     }
 
     private void tocarSom(float volume) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
+            if (mediaPlayer != null) mediaPlayer.release();
+            SharedPreferences prefs = getSharedPreferences("ow_alarm_prefs", MODE_PRIVATE);
+            
+            boolean dndBypass = prefs.getBoolean("pref_dnd_bypass", false);
+            if (dndBypass) {
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int maxVol = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+                int calculatedVol = (int) (maxVol * volume);
+                if (calculatedVol == 0 && volume > 0) calculatedVol = 1;
+                am.setStreamVolume(AudioManager.STREAM_ALARM, calculatedVol, 0);
             }
 
-            SharedPreferences prefs = getSharedPreferences("ow_alarm_prefs", MODE_PRIVATE);
-            String uriString = prefs.getString(getString(R.string.custom_sound_uri_key), null);
+            String uriString = null;
+            if (jogoAtivo != null) {
+                uriString = prefs.getString("custom_sound_uri_" + jogoAtivo.trim(), null);
+            }
+            if (uriString == null) {
+                uriString = prefs.getString("custom_sound_uri_Geral", null);
+            }
 
             if (uriString != null) {
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build());
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
                 mediaPlayer.setDataSource(this, Uri.parse(uriString));
                 mediaPlayer.prepare();
             } else {
                 mediaPlayer = MediaPlayer.create(this, R.raw.alarme);
-                if (mediaPlayer == null) {
-                    Log.e(TAG, "res/raw/alarme.mp3 não encontrado — adicione o arquivo de áudio no projeto.");
-                    return;
-                }
             }
-
-            mediaPlayer.setVolume(volume, volume);
-            mediaPlayer.setLooping(false);
-            mediaPlayer.start();
+            if (mediaPlayer != null) {
+                mediaPlayer.setVolume(volume, volume);
+                mediaPlayer.start();
+            }
         } catch (Exception e) {
-            Log.e(TAG, "Erro ao tocar alarme", e);
-            try {
-                if (mediaPlayer != null) mediaPlayer.release();
-                mediaPlayer = MediaPlayer.create(this, R.raw.alarme);
-                if (mediaPlayer != null) {
-                    mediaPlayer.setVolume(volume, volume);
-                    mediaPlayer.start();
-                }
-            } catch (Exception ex) {
-                Log.e(TAG, "Erro no fallback do alarme", ex);
-            }
+            Log.e(TAG, "Error playing sound", e);
         }
     }
 
     private void vibrar(int type) {
         if (vibrator == null || !vibrator.hasVibrator()) return;
-        
-        long[] pattern;
-        if (type == 0) {
-            pattern = new long[]{0, 200}; // Curto
-        } else if (type == 2) {
-            pattern = new long[]{0, 100, 100, 100, 400, 100, 100, 100}; // Heartbeat
-        } else {
-            pattern = new long[]{0, 1000}; // Longo
-        }
-
+        long[] pattern = (type == 0) ? new long[]{0, 200} : (type == 2 ? new long[]{0, 100, 100, 100, 400, 100, 100, 100} : new long[]{0, 1000});
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
         } else {
@@ -317,89 +353,87 @@ public class AlarmForegroundService extends Service {
 
     private void pararTudo() {
         deveReconectar = false;
-        if (ultimoStatus != Status.DESCONECTADO) {
-            LogManager.addLog(this, "Desconectado");
-        }
+        if (ultimoStatus != Status.DESCONECTADO) LogManager.addLog(this, getString(R.string.log_disconnected));
         enviarStatus(Status.DESCONECTADO);
-        if (webSocket != null) {
-            webSocket.close(1000, "Usuário desconectou");
-        }
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-        }
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        } else {
-            //noinspection deprecation
-            stopForeground(true);
-        }
+        if (webSocket != null) webSocket.close(1000, "User Logout");
+        if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
+        if (mediaPlayer != null) mediaPlayer.release();
+        stopForeground(STOP_FOREGROUND_REMOVE);
     }
 
     private void enviarStatus(Status status) {
         ultimoStatus = status;
-
+        if (status == Status.DESCONECTADO) {
+            jogoAtivo = null;
+            statusMonitorPc = null;
+        }
         if (statusListener != null) {
             new Handler(getMainLooper()).post(() -> {
-                if (statusListener != null) statusListener.onStatusChanged(status);
+                if (statusListener != null) {
+                    statusListener.onStatusChanged(status);
+                    statusListener.onGameChanged(jogoAtivo);
+                    statusListener.onPcMonitorStatusChanged(statusMonitorPc);
+                }
             });
         }
-
+        StatusWidget.updateAllWidgets(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            TileService.requestListeningState(this, new android.content.ComponentName(this, QuickTileService.class));
+        }
         Intent intent = new Intent(ACAO_STATUS_ATUALIZADO);
         intent.setPackage(getPackageName());
         intent.putExtra(EXTRA_STATUS, status.name());
         sendBroadcast(intent);
     }
 
-    private void atualizarNotificacao(String texto) {
-        // Intent para abrir o app ao clicar na notificação
-        Intent intentApp = new Intent(this, MainActivity.class);
-        intentApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingApp = PendingIntent.getActivity(this, 0, intentApp, 
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    private void atualizarJogo(String nome) {
+        jogoAtivo = nome;
+        LogManager.addLog(this, getString(R.string.log_profile_active, nome));
+        if (statusListener != null) {
+            new Handler(getMainLooper()).post(() -> {
+                if (statusListener != null) statusListener.onGameChanged(nome);
+            });
+        }
+        StatusWidget.updateAllWidgets(this);
+    }
 
-        // Intent para o botão de desconectar
+    private void atualizarStatusMonitorPc(String pcStatus) {
+        statusMonitorPc = pcStatus;
+        if (statusListener != null) {
+            new Handler(getMainLooper()).post(() -> {
+                if (statusListener != null) statusListener.onPcMonitorStatusChanged(pcStatus);
+            });
+        }
+    }
+
+    private void atualizarNotificacao(String texto) {
+        Intent intentApp = new Intent(this, MainActivity.class);
+        PendingIntent pendingApp = PendingIntent.getActivity(this, 0, intentApp, PendingIntent.FLAG_IMMUTABLE);
         Intent intentDesconectar = new Intent(this, AlarmForegroundService.class);
         intentDesconectar.setAction(ACAO_DESCONECTAR);
-        PendingIntent pendingDesconectar = PendingIntent.getService(this, 1, intentDesconectar, 
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingDesconectar = PendingIntent.getService(this, 1, intentDesconectar, PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CANAL_ID)
+        Notification notif = new NotificationCompat.Builder(this, CANAL_ID)
                 .setContentTitle("Game Sentinel")
                 .setContentText(texto)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setOngoing(true)
-                .setContentIntent(pendingApp) // Abre o app ao clicar
-                .setPriority(NotificationCompat.PRIORITY_LOW) // Padrão é baixa para não incomodar
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Desconectar", pendingDesconectar);
-
-        // Se for um alerta de partida encontrada, aumenta a prioridade
-        if (texto.contains("PARTIDA ENCONTRADA")) {
-            builder.setPriority(NotificationCompat.PRIORITY_HIGH)
-                   .setDefaults(Notification.DEFAULT_ALL)
-                   .setVibrate(new long[]{0, 500, 200, 500});
-        }
+                .setContentIntent(pendingApp)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Desconectar", pendingDesconectar)
+                .build();
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification notification = builder.build();
-        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIF_ID, notification);
+            startForeground(NOTIF_ID, notif);
         } else {
-            nm.notify(NOTIF_ID, notification);
+            nm.notify(NOTIF_ID, notif);
         }
     }
 
     private void criarCanalNotificacao() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel canal = new NotificationChannel(
-                    CANAL_ID, "Overwatch Alarm", NotificationManager.IMPORTANCE_LOW
-            );
-            NotificationManager nm = getSystemService(NotificationManager.class);
-            nm.createNotificationChannel(canal);
+            NotificationChannel canal = new NotificationChannel(CANAL_ID, "Game Sentinel", NotificationManager.IMPORTANCE_LOW);
+            getSystemService(NotificationManager.class).createNotificationChannel(canal);
         }
     }
 
@@ -409,9 +443,5 @@ public class AlarmForegroundService extends Service {
         super.onDestroy();
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+    @Nullable @Override public IBinder onBind(Intent intent) { return null; }
 }

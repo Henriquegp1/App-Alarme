@@ -46,24 +46,24 @@ public class StatusWidget extends AppWidgetProvider {
         
         switch (status) {
             case CONECTADO:
-                statusText = "Conectado" + (jogo != null ? " - " + jogo : "");
+                statusText = context.getString(R.string.status_conectado) + (jogo != null ? " - " + jogo : "");
                 color = ContextCompat.getColor(context, R.color.green_ok);
                 break;
             case CONECTANDO:
-                statusText = "Conectando...";
+                statusText = context.getString(R.string.status_conectando);
                 color = ContextCompat.getColor(context, R.color.text_muted);
                 break;
             case ERRO_AUTENTICACAO:
-                statusText = "Erro de Senha";
+                statusText = context.getString(R.string.status_erro_auth);
                 color = ContextCompat.getColor(context, R.color.red_danger);
                 break;
             case IP_INACESSIVEL:
-                statusText = "IP Inacessível";
+                statusText = context.getString(R.string.status_ip_inacessivel);
                 color = ContextCompat.getColor(context, R.color.yellow_alert);
                 break;
             case DESCONECTADO:
             default:
-                statusText = "Desconectado";
+                statusText = context.getString(R.string.status_desconectado);
                 color = ContextCompat.getColor(context, R.color.text_muted);
                 break;
         }

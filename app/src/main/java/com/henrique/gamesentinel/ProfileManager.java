@@ -65,7 +65,7 @@ public class ProfileManager {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
         } catch (GeneralSecurityException | IOException e) {
-            Log.e("ProfileManager", "Erro ao acessar SharedPreferences criptografado", e);
+            Log.e("ProfileManager", "Error accessing encrypted SharedPreferences", e);
             return context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
         }
     }

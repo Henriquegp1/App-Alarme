@@ -34,9 +34,37 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".StatusWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/status_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".QuickTileService"
+            android:icon="@drawable/ic_settings"
+            android:label="@string/quick_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".AlarmAlertActivity"
+            android:exported="false"
+            android:theme="@style/Theme.GameSentinel"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true" />
 
         <service
             android:name=".AlarmForegroundService"

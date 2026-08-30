@@ -32,4 +32,10 @@
     <color name="green_ok">#3BD16F</color>
     <color name="yellow_alert">#FFC107</color>
     <color name="red_danger">#E5484D</color>
+
+    <!-- Game specific colors -->
+    <color name="accent_overwatch">#F99E1A</color>
+    <color name="accent_valorant">#FF4655</color>
+    <color name="accent_dbd">#FFFFFF</color>
+    <color name="accent_generic">#3E9BD9</color>
 </resources>

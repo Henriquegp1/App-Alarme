@@ -2,17 +2,14 @@ package com.henrique.gamesentinel;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class QuickTileService extends TileService {
 
     @Override

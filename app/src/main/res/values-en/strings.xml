@@ -32,6 +32,11 @@
     <string name="label_volume">Alarm Volume</string>
     <string name="label_dnd_bypass">Bypass Silent Mode / DND</string>
     <string name="dnd_bypass_desc">The alarm will sound at maximum volume even if the phone is on silent.</string>
+    <string name="label_full_screen_alert">Full-Screen Alert</string>
+    <string name="full_screen_alert_desc">Opens a giant alert screen when a match is found (alarm clock style).</string>
+    <string name="btn_im_going">I\'M GOING!</string>
+    <string name="match_found_title">⚠️ MATCH FOUND!</string>
+    <string name="pref_full_screen_key">pref_full_screen</string>
     <string name="label_vibration">Vibration Pattern</string>
     <string name="vibr_short">Short</string>
     <string name="vibr_long">Long</string>
@@ -68,7 +73,43 @@
 
     <!-- Games -->
     <string name="game_label">Monitoring now:</string>
-    <string name="game_waiting">Waiting for game...</string>
+    <string name="game_waiting">Waiting for game&#8230;</string>
+
+    <!-- Logs & Events Messages -->
+    <string name="log_connected">Connected to PC</string>
+    <string name="log_disconnected">Disconnected</string>
+    <string name="log_match_found">⚠️ MATCH FOUND!</string>
+    <string name="log_test_pc">🧪 Test received from PC</string>
+    <string name="log_remote_cmd">Command sent: %s</string>
+    <string name="log_confirm_sent">Confirmation sent to PC</string>
+    <string name="log_profile_active">Active profile: %s</string>
+    <string name="log_test_manual">Manual alarm test executed</string>
+
+    <!-- Error Messages -->
+    <string name="err_auth_failed">Authentication error — check the password.</string>
+    <string name="err_too_many_attempts">Too many attempts — temporary block.</string>
+    <string name="err_ip_unreachable">IP unreachable — check the network and PC.</string>
+    <string name="err_connection_lost">Connection lost — reconnecting&#8230;</string>
+    <string name="err_permission">Permission error accessing file</string>
+    <string name="err_play_sound">Error playing sound: %s</string>
+    <string name="err_default_sound">Error loading default sound</string>
+
+    <!-- UI Labels & Toasts -->
+    <string name="status_waiting">Waiting for match&#8230;</string>
+    <string name="toast_qr_read">QR Code read</string>
+    <string name="toast_input_token">Enter session code or password</string>
+    <string name="toast_input_ip">Enter a valid IP (e.g. 192.168.0.10:8000)</string>
+    <string name="qr_prompt">Point to the QR Code displayed on PC</string>
+    <string name="dialog_now_no">Not now</string>
+    <string name="err_fill_all_fields">Please fill all fields</string>
+    <string name="toast_sound_updated">Sound for %s updated!</string>
+    <string name="sound_selected_label">Sound Selected</string>
+    <string name="toast_testing_alert">Testing full alert&#8230;</string>
+    <string name="pc_status_prefix">PC Status: %s</string>
+    <string name="pc_status_none">--</string>
+    <string name="err_config_ip_first">Configure the IP in the app first</string>
+    <string name="restarting_connection">Restarting connection</string>
+
     <!-- Remote Control -->
     <string name="remote_control_label">Remote Control (PC)</string>
     <string name="btn_remote_start">Start PC</string>
@@ -87,7 +128,7 @@
     <string name="about_section">About &amp; Updates</string>
     <string name="current_version_label">Current version: %s</string>
     <string name="btn_check_updates">Check for Updates</string>
-    <string name="checking_updates">Checking for updates...</string>
+    <string name="checking_updates">Checking for updates&#8230;</string>
     <string name="no_updates">You are already on the latest version!</string>
     <string name="update_available_title">New Version Available!</string>
     <string name="update_available_msg">A new version (%s) is available on GitHub. Do you want to download it now?</string>

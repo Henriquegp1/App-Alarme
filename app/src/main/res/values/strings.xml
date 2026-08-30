@@ -14,10 +14,15 @@
 
     <!-- Settings -->
     <string name="settings_title">Configurações</string>
-    <string name="alarm_sound_section">Som do Alarme</string>
-    <string name="select_sound_btn">Selecionar Novo Som</string>
+    <string name="alarm_sound_section">Sons por Jogo</string>
+    <string name="select_game_sound_label">Configurar som para:</string>
+    <string name="select_sound_btn">Selecionar Áudio</string>
     <string name="test_sound_btn">Testar Alerta Completo</string>
-    <string name="current_sound_label">Som selecionado:</string>
+    <string name="current_sound_label">Som para %s:</string>
+    <string name="game_generic">Geral / Outros</string>
+    <string name="game_overwatch">Overwatch</string>
+    <string name="game_valorant">Valorant</string>
+    <string name="game_dbd">Dead by Daylight</string>
     <string name="default_sound_name">Padrão (Overwatch)</string>
     <string name="custom_sound_uri_key">custom_sound_uri</string>
     <string name="custom_sound_name_key">custom_sound_name</string>
@@ -25,6 +30,13 @@
     <!-- Alerta Customization -->
     <string name="alert_custom_section">Personalização do Alerta</string>
     <string name="label_volume">Volume do Alarme</string>
+    <string name="label_dnd_bypass">Furar Modo Silencioso / Não Perturbe</string>
+    <string name="dnd_bypass_desc">O alarme tocará no volume máximo mesmo se o celular estiver no mudo.</string>
+    <string name="label_full_screen_alert">Alerta em Tela Cheia</string>
+    <string name="full_screen_alert_desc">Abre uma tela de aviso gigante ao encontrar partida (estilo despertador).</string>
+    <string name="btn_im_going">ESTOU INDO!</string>
+    <string name="match_found_title">⚠️ PARTIDA ENCONTRADA!</string>
+    <string name="pref_full_screen_key">pref_full_screen</string>
     <string name="label_vibration">Padrão de Vibração</string>
     <string name="vibr_short">Curto</string>
     <string name="vibr_long">Longo</string>
@@ -34,6 +46,7 @@
     <string name="pref_volume_key">pref_volume</string>
     <string name="pref_vibration_key">pref_vibration</string>
     <string name="pref_duration_key">pref_duration</string>
+    <string name="pref_dnd_bypass_key">pref_dnd_bypass</string>
 
     <string name="battery_optimization_section">Estabilidade (Bateria)</string>
     <string name="battery_optimization_desc">O Android pode fechar o app para economizar bateria se ele ficar muito tempo em segundo plano. Para garantir que o alarme sempre toque, desative a otimização para este app.</string>
@@ -57,4 +70,69 @@
     <string name="history_section">Atividade Recente</string>
     <string name="btn_clear_history">Limpar</string>
     <string name="no_history">Nenhuma atividade registrada.</string>
+
+    <!-- Games -->
+    <string name="game_label">Monitorando agora:</string>
+    <string name="game_waiting">Aguardando jogo&#8230;</string>
+
+    <!-- Logs & Events Messages -->
+    <string name="log_connected">Conectado ao PC</string>
+    <string name="log_disconnected">Desconectado</string>
+    <string name="log_match_found">⚠️ PARTIDA ENCONTRADA!</string>
+    <string name="log_test_pc">🧪 Teste recebido do PC</string>
+    <string name="log_remote_cmd">Comando enviado: %s</string>
+    <string name="log_confirm_sent">Confirmação enviada ao PC</string>
+    <string name="log_profile_active">Perfil ativo: %s</string>
+    <string name="log_test_manual">Teste de alarme executado</string>
+
+    <!-- Error Messages -->
+    <string name="err_auth_failed">Erro de autenticação — verifique a senha.</string>
+    <string name="err_too_many_attempts">Muitas tentativas — bloqueio temporário.</string>
+    <string name="err_ip_unreachable">IP inacessível — verifique a rede e o PC.</string>
+    <string name="err_connection_lost">Conexão perdida — reconectando&#8230;</string>
+    <string name="err_permission">Erro de permissão ao acessar arquivo</string>
+    <string name="err_play_sound">Erro ao reproduzir som: %s</string>
+    <string name="err_default_sound">Erro ao carregar som padrão</string>
+
+    <!-- UI Labels & Toasts -->
+    <string name="status_waiting">Aguardando partida&#8230;</string>
+    <string name="toast_qr_read">QR Code lido</string>
+    <string name="toast_input_token">Digite o código da sessão ou a senha</string>
+    <string name="toast_input_ip">Digite um IP válido (ex: 192.168.0.10:8000)</string>
+    <string name="qr_prompt">Aponte para o QR Code exibido no PC</string>
+    <string name="dialog_now_no">Agora não</string>
+    <string name="err_fill_all_fields">Preencha todos os campos</string>
+    <string name="toast_sound_updated">Som para %s atualizado!</string>
+    <string name="sound_selected_label">Som Selecionado</string>
+    <string name="toast_testing_alert">Testando alerta completo&#8230;</string>
+    <string name="pc_status_prefix">Status PC: %s</string>
+    <string name="pc_status_none">--</string>
+    <string name="err_config_ip_first">Configure o IP no app primeiro</string>
+    <string name="restarting_connection">Reiniciando conexão</string>
+
+    <!-- Remote Control -->
+    <string name="remote_control_label">Controle Remoto (PC)</string>
+    <string name="btn_remote_start">Iniciar PC</string>
+    <string name="btn_remote_stop">Parar PC</string>
+    <string name="pc_status_label">Status PC:</string>
+    <string name="pc_status_idle">Pronto</string>
+    <string name="pc_status_monitoring">Monitorando</string>
+    <string name="pc_status_cooldown">Cooldown</string>
+
+    <!-- Widget & UI Toggles -->
+    <string name="show_logs">▶ Atividade Recente</string>
+    <string name="hide_logs">▼ Atividade Recente</string>
+    <string name="widget_label">GameSentinel Status</string>
+
+    <!-- About & Updates -->
+    <string name="about_section">Sobre e Atualizações</string>
+    <string name="current_version_label">Versão atual: %s</string>
+    <string name="btn_check_updates">Verificar Atualizações</string>
+    <string name="checking_updates">Buscando atualizações...</string>
+    <string name="no_updates">Você já está na versão mais recente!</string>
+    <string name="update_available_title">Nova Versão Disponível!</string>
+    <string name="update_available_msg">Uma nova versão (%s) está disponível no GitHub. Deseja baixar agora?</string>
+    <string name="btn_download">Baixar</string>
+    <string name="update_error">Erro ao verificar atualizações. Tente novamente mais tarde.</string>
+    <string name="quick_tile_label">Game Sentinel</string>
 </resources>
