@@ -1,7 +1,6 @@
 package com.henrique.gamesentinel;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -44,9 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtBatteryWarning;
     private SharedPreferences prefs;
 
-    private final AlarmForegroundService.OnStatusChangeListener listenerStatus = status -> {
-        atualizarStatusUI(status);
-    };
+    private final AlarmForegroundService.OnStatusChangeListener listenerStatus = this::atualizarStatusUI;
 
     private final LogManager.OnLogChangeListener listenerLog = this::refreshLogs;
 
@@ -264,9 +261,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * O PC gera um QR Code com "ws://IP:PORTA/ws?token=XXXX".
-     * Preenche IP:PORTA no campo de endereço e o token no campo de
-     * credencial automaticamente, sem o usuário precisar digitar nada.
+     * O PC gera um código de resposta rápida (QR Code) com "ws://IP:PORTA/ws?token=XXXX".
+     * Preenche IP:PORTA no campo de endereço e a credencial (token) no campo de
+     * senha automaticamente, sem o usuário precisar digitar nada.
      */
     private void preencherComQr(String conteudoQr) {
         String semProtocolo = conteudoQr.replace("ws://", "");
@@ -276,38 +273,36 @@ public class MainActivity extends AppCompatActivity {
 
         editIp.setText(hostPorta);
 
-        String token = extrairParametro(resto, "token");
+        String token = extrairParametro(resto);
         if (!TextUtils.isEmpty(token)) {
             editSenha.setText(token);
         }
     }
 
-    private String extrairParametro(String urlOuQuery, String nome) {
-        String chave = nome + "=";
+    private String extrairParametro(String urlOuQuery) {
+        String chave = "token=";
         int idx = urlOuQuery.indexOf(chave);
         if (idx < 0) return null;
-        String valor = urlOuQuery.substring(idx + chave.length());
-        int fimIdx = valor.indexOf('&');
+        String valorParcial = urlOuQuery.substring(idx + chave.length());
+        int fimIdx = valorParcial.indexOf('&');
         if (fimIdx >= 0) {
-            valor = valor.substring(0, fimIdx);
+            return valorParcial.substring(0, fimIdx);
         }
-        return valor;
+        return valorParcial;
     }
 
     private String montarUrlWebSocket(String enderecoEntrada, String credencial) {
         if (TextUtils.isEmpty(enderecoEntrada)) return null;
-        String semProtocolo = enderecoEntrada.replace("ws://", "");
-        int idxWs = semProtocolo.indexOf("/ws");
-        if (idxWs >= 0) {
-            semProtocolo = semProtocolo.substring(0, idxWs);
-        }
-        if (!semProtocolo.contains(":")) {
-            semProtocolo = semProtocolo + ":8000";
-        }
-        String url = "ws://" + semProtocolo + "/ws";
+        String rawAddress = enderecoEntrada.replace("ws://", "");
+        int idxWs = rawAddress.indexOf("/ws");
+        String cleanAddress = idxWs >= 0 ? rawAddress.substring(0, idxWs) : rawAddress;
+        
+        String finalAddress = cleanAddress.contains(":") ? cleanAddress : cleanAddress + ":8000";
+        
+        String baseUrl = "ws://" + finalAddress + "/ws";
         if (!TextUtils.isEmpty(credencial)) {
-            url += "?token=" + Uri.encode(credencial);
+            return baseUrl + "?token=" + Uri.encode(credencial);
         }
-        return url;
+        return baseUrl;
     }
 }

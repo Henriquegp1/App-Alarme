@@ -90,19 +90,21 @@ public class AlarmForegroundService extends Service {
 
         String acao = intent.getAction();
 
-        if (ACAO_DESCONECTAR.equals(acao)) {
-            pararTudo();
-            stopSelf();
-            return START_NOT_STICKY;
-        }
-
-        if (ACAO_CONECTAR.equals(acao)) {
-            urlAtual = intent.getStringExtra(EXTRA_WS_URL);
-            deveReconectar = true;
-            enviarStatus(Status.CONECTANDO);
-            iniciarComoForeground();
-            adquirirWakeLock();
-            conectar(urlAtual);
+        if (acao != null) {
+            switch (acao) {
+                case ACAO_DESCONECTAR:
+                    pararTudo();
+                    stopSelf();
+                    return START_NOT_STICKY;
+                case ACAO_CONECTAR:
+                    urlAtual = intent.getStringExtra(EXTRA_WS_URL);
+                    deveReconectar = true;
+                    enviarStatus(Status.CONECTANDO);
+                    iniciarComoForeground();
+                    adquirirWakeLock();
+                    conectar(urlAtual);
+                    break;
+            }
         }
 
         return START_STICKY;
@@ -129,7 +131,7 @@ public class AlarmForegroundService extends Service {
         Request request = new Request.Builder().url(url).build();
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
-            public void onOpen(WebSocket ws, Response response) {
+            public void onOpen(@androidx.annotation.NonNull WebSocket ws, @androidx.annotation.NonNull Response response) {
                 Log.i(TAG, "Conectado: " + url);
                 LogManager.addLog(AlarmForegroundService.this, "Conectado ao PC");
                 enviarStatus(Status.CONECTADO);
@@ -170,30 +172,33 @@ public class AlarmForegroundService extends Service {
             }
 
             @Override
-            public void onFailure(WebSocket ws, Throwable t, Response response) {
+            public void onFailure(@androidx.annotation.NonNull WebSocket ws, @androidx.annotation.NonNull Throwable t, Response response) {
                 Log.e(TAG, "Conexão caiu: " + t.getMessage());
                 
-                Status novoStatus = Status.CONECTANDO;
-                String mensagemNotif = "Conexão perdida — reconectando...";
+                Status erroStatus;
+                String mensagemNotif;
 
                 if (response != null) {
                     int code = response.code();
                     if (code == 401 || code == 403) {
-                        novoStatus = Status.ERRO_AUTENTICACAO;
+                        erroStatus = Status.ERRO_AUTENTICACAO;
                         mensagemNotif = "Erro de autenticação — verifique a senha.";
                         deveReconectar = false; // Para de tentar se a senha está errada
                     } else if (code == 429) {
-                        novoStatus = Status.BLOQUEIO_TEMPORARIO;
+                        erroStatus = Status.BLOQUEIO_TEMPORARIO;
                         mensagemNotif = "Muitas tentativas — bloqueio temporário.";
                         deveReconectar = false;
+                    } else {
+                        erroStatus = Status.CONECTANDO;
+                        mensagemNotif = "Conexão perdida — reconectando...";
                     }
                 } else {
                     // Sem resposta (response == null) geralmente indica erro de rede/IP
-                    novoStatus = Status.IP_INACESSIVEL;
+                    erroStatus = Status.IP_INACESSIVEL;
                     mensagemNotif = "IP inacessível — verifique a rede e o PC.";
                 }
 
-                enviarStatus(novoStatus);
+                enviarStatus(erroStatus);
                 atualizarNotificacao(mensagemNotif);
                 LogManager.addLog(AlarmForegroundService.this, "Erro: " + mensagemNotif);
                 
@@ -294,13 +299,18 @@ public class AlarmForegroundService extends Service {
         if (vibrator == null || !vibrator.hasVibrator()) return;
         
         long[] pattern;
-        if (type == 0) pattern = new long[]{0, 200}; // Curto
-        else if (type == 2) pattern = new long[]{0, 100, 100, 100, 400, 100, 100, 100}; // Heartbeat
-        else pattern = new long[]{0, 1000}; // Longo
+        if (type == 0) {
+            pattern = new long[]{0, 200}; // Curto
+        } else if (type == 2) {
+            pattern = new long[]{0, 100, 100, 100, 400, 100, 100, 100}; // Heartbeat
+        } else {
+            pattern = new long[]{0, 1000}; // Longo
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
         } else {
+            //noinspection deprecation
             vibrator.vibrate(pattern, -1);
         }
     }
@@ -321,7 +331,12 @@ public class AlarmForegroundService extends Service {
             mediaPlayer.release();
             mediaPlayer = null;
         }
-        stopForeground(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } else {
+            //noinspection deprecation
+            stopForeground(true);
+        }
     }
 
     private void enviarStatus(Status status) {

@@ -2,6 +2,7 @@ package com.henrique.gamesentinel;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 import org.json.JSONArray;
@@ -43,6 +44,7 @@ public class ProfileManager {
             );
         }
         
+        @androidx.annotation.NonNull
         @Override
         public String toString() {
             return name;
@@ -51,7 +53,10 @@ public class ProfileManager {
 
     private static SharedPreferences getEncryptedPrefs(Context context) {
         try {
+            // Utilizando a API recomendada para SharedPreferences criptografados
+            //noinspection deprecation
             String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+            //noinspection deprecation
             return EncryptedSharedPreferences.create(
                 FILE_NAME,
                 masterKeyAlias,
@@ -60,7 +65,7 @@ public class ProfileManager {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
         } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
+            Log.e("ProfileManager", "Erro ao acessar SharedPreferences criptografado", e);
             return context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
         }
     }

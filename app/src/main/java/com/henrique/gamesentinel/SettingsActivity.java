@@ -23,7 +23,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -93,9 +92,18 @@ public class SettingsActivity extends AppCompatActivity {
         // Carregar valores salvos
         seekVolume.setProgress(prefs.getInt(getString(R.string.pref_volume_key), 80));
         int vibrType = prefs.getInt(getString(R.string.pref_vibration_key), 1);
-        if (vibrType == 0) groupVibr.check(R.id.radio_vibr_short);
-        else if (vibrType == 2) groupVibr.check(R.id.radio_vibr_heart);
-        else groupVibr.check(R.id.radio_vibr_long);
+        switch (vibrType) {
+            case 0:
+                groupVibr.check(R.id.radio_vibr_short);
+                break;
+            case 2:
+                groupVibr.check(R.id.radio_vibr_heart);
+                break;
+            case 1:
+            default:
+                groupVibr.check(R.id.radio_vibr_long);
+                break;
+        }
 
         btnBack.setOnClickListener(v -> finish());
         
@@ -108,10 +116,15 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         groupVibr.setOnCheckedChangeListener((group, checkedId) -> {
-            int type = 1;
-            if (checkedId == R.id.radio_vibr_short) type = 0;
-            else if (checkedId == R.id.radio_vibr_heart) type = 2;
-            prefs.edit().putInt(getString(R.string.pref_vibration_key), type).apply();
+            int selectedType;
+            if (checkedId == R.id.radio_vibr_short) {
+                selectedType = 0;
+            } else if (checkedId == R.id.radio_vibr_heart) {
+                selectedType = 2;
+            } else {
+                selectedType = 1;
+            }
+            prefs.edit().putInt(getString(R.string.pref_vibration_key), selectedType).apply();
         });
 
         btnBattery = findViewById(R.id.btn_battery_optimization);
@@ -289,18 +302,23 @@ public class SettingsActivity extends AppCompatActivity {
             testMediaPlayer.start();
             LogManager.addLog(this, "Teste de alarme executado");
             
-            // Testar Vibração
-            int vibrType = prefs.getInt(getString(R.string.pref_vibration_key), 1);
-            long[] pattern;
-            if (vibrType == 0) pattern = new long[]{0, 200}; // Curto
-            else if (vibrType == 2) pattern = new long[]{0, 100, 100, 100, 400, 100, 100, 100}; // Heartbeat
-            else pattern = new long[]{0, 1000}; // Longo
+        // Testar Vibração
+        int currentVibrType = prefs.getInt(getString(R.string.pref_vibration_key), 1);
+        long[] pattern;
+        if (currentVibrType == 0) {
+            pattern = new long[]{0, 200}; // Curto
+        } else if (currentVibrType == 2) {
+            pattern = new long[]{0, 100, 100, 100, 400, 100, 100, 100}; // Heartbeat
+        } else {
+            pattern = new long[]{0, 1000}; // Longo
+        }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                testVibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
-            } else {
-                testVibrator.vibrate(pattern, -1);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            testVibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+        } else {
+            //noinspection deprecation
+            testVibrator.vibrate(pattern, -1);
+        }
 
             Toast.makeText(this, "Testando alerta completo...", Toast.LENGTH_SHORT).show();
 

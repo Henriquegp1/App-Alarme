@@ -26,16 +26,19 @@ public class LogManager {
 
     public static void addLog(Context context, String message) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_LOGS, Context.MODE_PRIVATE);
-        List<String> logs = getLogs(context);
+        List<String> currentLogs = getLogs(context);
         
         String timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-        logs.add(0, "[" + timestamp + "] " + message);
+        currentLogs.add(0, "[" + timestamp + "] " + message);
         
-        if (logs.size() > MAX_LOGS) {
-            logs = logs.subList(0, MAX_LOGS);
+        List<String> logsToSave;
+        if (currentLogs.size() > MAX_LOGS) {
+            logsToSave = currentLogs.subList(0, MAX_LOGS);
+        } else {
+            logsToSave = currentLogs;
         }
         
-        JSONArray array = new JSONArray(logs);
+        JSONArray array = new JSONArray(logsToSave);
         prefs.edit().putString(KEY_LOG_LIST, array.toString()).apply();
 
         if (listener != null) {
