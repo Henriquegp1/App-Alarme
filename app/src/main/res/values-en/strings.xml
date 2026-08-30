@@ -1,0 +1,96 @@
+<resources>
+    <string name="app_name">Game Sentinel</string>
+    <string name="config_conexao">Connection Settings</string>
+    <string name="status_desconectado">● Disconnected</string>
+    <string name="status_conectando">● Connecting&#8230;</string>
+    <string name="status_conectado">● Connected</string>
+    <string name="status_erro_auth">● Authentication Error</string>
+    <string name="status_ip_inacessivel">● IP Inaccessible</string>
+    <string name="status_bloqueio_temp">● Temporary Block</string>
+    <string name="btn_conectar">Connect</string>
+    <string name="btn_desconectar">Disconnect</string>
+    <string name="btn_scan_qr">Scan PC QR Code</string>
+    <string name="btn_back">Back</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="alarm_sound_section">Sounds by Game</string>
+    <string name="select_game_sound_label">Configure sound for:</string>
+    <string name="select_sound_btn">Select Audio</string>
+    <string name="test_sound_btn">Test Full Alert</string>
+    <string name="current_sound_label">Sound for %s:</string>
+    <string name="game_generic">General / Others</string>
+    <string name="game_overwatch">Overwatch</string>
+    <string name="game_valorant">Valorant</string>
+    <string name="game_dbd">Dead by Daylight</string>
+    <string name="default_sound_name">Default (Overwatch)</string>
+    <string name="custom_sound_uri_key">custom_sound_uri</string>
+    <string name="custom_sound_name_key">custom_sound_name</string>
+
+    <!-- Alert Customization -->
+    <string name="alert_custom_section">Alert Customization</string>
+    <string name="label_volume">Alarm Volume</string>
+    <string name="label_dnd_bypass">Bypass Silent Mode / DND</string>
+    <string name="dnd_bypass_desc">The alarm will sound at maximum volume even if the phone is on silent.</string>
+    <string name="label_vibration">Vibration Pattern</string>
+    <string name="vibr_short">Short</string>
+    <string name="vibr_long">Long</string>
+    <string name="vibr_heartbeat">Heartbeat</string>
+    <string name="label_duration">Duration (seconds)</string>
+
+    <string name="pref_volume_key">pref_volume</string>
+    <string name="pref_vibration_key">pref_vibration</string>
+    <string name="pref_duration_key">pref_duration</string>
+    <string name="pref_dnd_bypass_key">pref_dnd_bypass</string>
+
+    <string name="battery_optimization_section">Stability (Battery)</string>
+    <string name="battery_optimization_desc">Android may close the app to save battery if it stays in the background for too long. To ensure the alarm always sounds, disable optimization for this app.</string>
+    <string name="battery_status_label">Execution Status:</string>
+    <string name="battery_status_optimized">⚠️ Optimized (May fail)</string>
+    <string name="battery_status_protected">✅ Protected (Stable execution)</string>
+    <string name="battery_optimization_btn_on">Configure Battery</string>
+    <string name="battery_optimization_btn_off">Optimization Disabled</string>
+    <string name="main_battery_warning">Android may close the app. Tap to fix.</string>
+
+    <!-- Profiles & Security -->
+    <string name="security_section">Security and Profiles</string>
+    <string name="clear_credentials_btn">Clear All Credentials</string>
+    <string name="save_profile_btn">Save Profile</string>
+    <string name="profile_name_hint">Profile Name (e.g. My PC)</string>
+    <string name="select_profile_label">Select Profile:</string>
+    <string name="profile_saved">Profile saved successfully!</string>
+    <string name="credentials_cleared">All credentials have been cleared.</string>
+
+    <!-- History -->
+    <string name="history_section">Recent Activity</string>
+    <string name="btn_clear_history">Clear</string>
+    <string name="no_history">No activity recorded.</string>
+
+    <!-- Games -->
+    <string name="game_label">Monitoring now:</string>
+    <string name="game_waiting">Waiting for game...</string>
+    <!-- Remote Control -->
+    <string name="remote_control_label">Remote Control (PC)</string>
+    <string name="btn_remote_start">Start PC</string>
+    <string name="btn_remote_stop">Stop PC</string>
+    <string name="pc_status_label">PC Status:</string>
+    <string name="pc_status_idle">Ready</string>
+    <string name="pc_status_monitoring">Monitoring</string>
+    <string name="pc_status_cooldown">Cooldown</string>
+
+    <!-- Widget & UI Toggles -->
+    <string name="show_logs">▶ Recent Activity</string>
+    <string name="hide_logs">▼ Recent Activity</string>
+    <string name="widget_label">GameSentinel Status</string>
+    <string name="quick_tile_label">Game Sentinel</string>
+    <!-- About & Updates -->
+    <string name="about_section">About &amp; Updates</string>
+    <string name="current_version_label">Current version: %s</string>
+    <string name="btn_check_updates">Check for Updates</string>
+    <string name="checking_updates">Checking for updates...</string>
+    <string name="no_updates">You are already on the latest version!</string>
+    <string name="update_available_title">New Version Available!</string>
+    <string name="update_available_msg">A new version (%s) is available on GitHub. Do you want to download it now?</string>
+    <string name="btn_download">Download</string>
+    <string name="update_error">Error checking for updates. Try again later.</string>
+</resources>

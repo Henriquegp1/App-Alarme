@@ -17,25 +17,26 @@ Este aplicativo Android é o complemento do sistema para PC. O código-fonte do 
 
 ---
 
-O **GameSentinel** é a parte mobile do sistema (pacote técnico `com.henrique.gamesentinel`). Este aplicativo Android se conecta ao sistema rodando no seu PC via WebSocket para alertar instantaneamente (com som e vibração personalizada) quando uma partida for encontrada.
+O **GameSentinel** é a parte mobile do sistema (pacote técnico `com.henrique.gamesentinel`). Este aplicativo Android se conecta ao sistema rodando no seu PC via WebSocket para alertar instantaneamente (com som e vibração personalizada) quando uma partida for encontrada em jogos como Overwatch, Valorant e Dead by Daylight.
 
 ## 🚀 Principais Funcionalidades
 
-* **Conexão Instantânea:** Leitura de QR Code ou entrada manual de IP para conexão via WebSocket.
-* **Notificação Persistente:** Acompanhe o status da conexão diretamente na barra de notificações e desconecte com um toque.
-* **Personalização de Alerta:**
-  * Troque o som do alarme por qualquer arquivo de áudio do seu celular.
-  * Ajuste o volume do alarme independente do sistema.
-  * Escolha entre diferentes padrões de vibração (Curto, Longo ou Pulsação).
-* **Gerenciamento de Perfis:** Salve múltiplos PCs (casa, trabalho, etc.) com nomes personalizados e credenciais criptografadas.
-* **Histórico de Atividade:** Log em tempo real de conexões, alarmes recebidos e confirmações enviadas ao PC.
-* **Segurança:** Armazenamento de senhas e tokens utilizando o Android Keystore (criptografia AES-256).
-* **Guia de Estabilidade:** Detector integrado de otimização de bateria para garantir que o Android não feche o app em segundo plano.
+* **🎮 Controle Remoto do PC:** Inicie ou pare o monitoramento de tela do seu computador diretamente pelo celular.
+* **🔄 Sincronização de Status:** Veja em tempo real o que o PC está fazendo (Monitorando, Em Cooldown ou Pronto) e qual jogo está ativo.
+* **🎵 Sons Personalizados por Jogo:** Defina áudios diferentes para cada jogo (Overwatch, Valorant, etc.) para saber qual partida foi encontrada apenas pelo som.
+* **🔇 DND Bypass (Furar Mudo):** Opção para o alarme tocar no volume máximo mesmo que o celular esteja no modo silencioso ou "Não Perturbe".
+* **⚡ Atalho nas Configurações Rápidas:** Adicione um botão (Tile) na barra de notificações do Android para conectar/desconectar instantaneamente.
+* **🏠 Widget de Status:** Acompanhe a conexão e o jogo ativo diretamente na tela inicial do seu celular.
+* **🌎 Multi-idioma:** Suporte nativo completo para **Português (Brasil)** e **Inglês**.
+* **🔐 Segurança Máxima:** Credenciais e tokens protegidos utilizando o **Android Keystore** (criptografia AES-256).
+* **📋 Histórico Retrátil:** Log de atividades detalhado que pode ser ocultado para manter a interface limpa.
+* **🔋 Guia de Estabilidade:** Detector de otimização de bateria para garantir que o Android não feche o app em segundo plano.
+* **✨ Verificador de Atualizações:** Botão integrado para checar novas versões diretamente do GitHub.
 
 ## 🛠️ Como Abrir e Compilar
 
 1. **Requisitos:** Android Studio Hedgehog (ou superior).
-2. **Abrir:** `File > Open` e selecione a pasta `OwAlarm`.
+2. **Abrir:** `File > Open` e selecione a pasta do projeto.
 3. **Sincronização:** O Gradle baixará as dependências automaticamente na primeira abertura.
 4. **Recursos Obrigatórios:**
    * Coloque um arquivo `alarme.mp3` em `app/src/main/res/raw/` para o som padrão.
@@ -43,30 +44,28 @@ O **GameSentinel** é a parte mobile do sistema (pacote técnico `com.henrique.g
 
 ## 📱 Como Usar
 
-1. Certifique-se de que o Cliente PC está rodando e com o monitoramento iniciado.
+1. Certifique-se de que o **Cliente PC** está rodando e com o monitoramento iniciado.
 2. **Conectar:**
    * No app, toque em "Ler QR Code" e aponte para a tela do PC.
-   * OU digite o `IP:PORTA` e a senha manualmente.
+   * OU selecione um perfil salvo nas configurações.
 3. **Configurações:** Toque no ícone de engrenagem (topo direito) para:
-   * Trocar o som do alarme.
-   * Ajustar vibração e volume.
-   * **IMPORTANTE:** Toque em "Desativar Otimização de Bateria" para garantir que o alarme toque mesmo após horas com a tela apagada.
-4. **Perfis:** Salve suas configurações de rede na seção "Segurança e Perfis" para conexões futuras mais rápidas.
+   * Personalizar os sons de cada jogo.
+   * Ativar o **Bypass de Silencioso**.
+   * **IMPORTANTE:** Toque em "Configurar Bateria" para garantir execução estável.
+4. **Perfis:** Salve seus PCs na seção "Segurança e Perfis" para trocas rápidas.
 
 ## ⚠️ Solução de Problemas
 
-* **Não conecta:** Verifique se o Celular e o PC estão na mesma rede Wi-Fi. O Firewall do Windows também deve permitir a porta 8000.
-* **O alarme não toca em segundo plano:** Verifique o "Status de Execução" nas configurações do app e certifique-se de que ele está como "Protegido".
-* **Erro de Autenticação:** Verifique se o código da sessão (token) ou a senha configurada no PC coincidem com o que foi digitado no app.
+* **Não conecta:** Verifique se o Celular e o PC estão na **mesma rede Wi-Fi**. O Firewall do Windows também deve permitir a porta 8000.
+* **O alarme não toca em segundo plano:** Certifique-se de que o Status de Execução nas configurações está como **"Protegido"**.
+* **Erro de Autenticação:** Verifique se a senha no PC e no App são as mesmas. O log de erros no celular dará o motivo exato.
 
 ## 📦 Gerar Versão para Distribuição (APK)
 
-Para mandar o app para outras pessoas ou postar no GitHub:
-
 1. Vá em `Build > Generate Signed Bundle / APK`.
-2. Selecione APK e clique em `Next`.
-3. Crie ou selecione uma Key Store (Chave de Assinatura).
-4. Escolha o destino e selecione a variante de build release.
+2. Selecione **APK** e clique em `Next`.
+3. Use sua Key Store de produção.
+4. Selecione a variante **release**.
 5. O arquivo final estará em `app/release/app-release.apk`.
 
 ---
