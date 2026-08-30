@@ -1,4 +1,4 @@
-package com.henrique.owalarm;
+package com.henrique.gamesentinel;
 
 import android.content.Context;
 import android.content.SharedPreferences;

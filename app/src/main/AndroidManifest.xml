@@ -16,7 +16,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.OwAlarm"
+        android:theme="@style/Theme.GameSentinel"
         android:usesCleartextTraffic="true">
         <!--
             usesCleartextTraffic="true" é OBRIGATÓRIO aqui: desde o Android 9

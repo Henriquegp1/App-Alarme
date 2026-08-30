@@ -1,4 +1,4 @@
-package com.henrique.owalarm;
+package com.henrique.gamesentinel;
 
 import android.app.Activity;
 import android.content.Intent;

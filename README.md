@@ -1,4 +1,4 @@
-# TalonMatchAlarm — App Android (OwAlarm)
+# GameSentinel — App Android
 
 **Licença:** este projeto é gratuito para uso pessoal e não-comercial, sob a [PolyForm Noncommercial License 1.0.0](https://github.com/Henriquegp1/App-Alarme/blob/master/LICENSE). Uso comercial (venda, revenda ou distribuição paga) não é permitido sem autorização do autor.
 
@@ -17,7 +17,7 @@ Este aplicativo Android é o complemento do sistema para PC. O código-fonte do 
 
 ---
 
-O **TalonMatchAlarm** é a parte mobile do sistema (pacote técnico `com.henrique.owalarm`). Este aplicativo Android se conecta ao sistema rodando no seu PC via WebSocket para alertar instantaneamente (com som e vibração personalizada) quando uma partida for encontrada.
+O **GameSentinel** é a parte mobile do sistema (pacote técnico `com.henrique.gamesentinel`). Este aplicativo Android se conecta ao sistema rodando no seu PC via WebSocket para alertar instantaneamente (com som e vibração personalizada) quando uma partida for encontrada.
 
 ## 🚀 Principais Funcionalidades
 
@@ -71,4 +71,4 @@ Para mandar o app para outras pessoas ou postar no GitHub:
 
 ---
 
-Desenvolvido como parte do ecossistema TalonMatchAlarm.
+Desenvolvido como parte do ecossistema GameSentinel.

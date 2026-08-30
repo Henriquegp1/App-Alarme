@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OW Match Alarm</string>
+    <string name="app_name">Game Sentinel</string>
     <string name="config_conexao">Configurações de Conexão</string>
     <string name="status_desconectado">● Desconectado</string>
     <string name="status_conectando">● Conectando&#8230;</string>

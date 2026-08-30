@@ -1,4 +1,4 @@
-package com.henrique.owalarm;
+package com.henrique.gamesentinel;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -35,9 +35,9 @@ import okhttp3.WebSocketListener;
 public class AlarmForegroundService extends Service {
 
     public static final String EXTRA_WS_URL = "extra_ws_url";
-    public static final String ACAO_CONECTAR = "com.henrique.owalarm.CONECTAR";
-    public static final String ACAO_DESCONECTAR = "com.henrique.owalarm.DESCONECTAR";
-    public static final String ACAO_STATUS_ATUALIZADO = "com.henrique.owalarm.STATUS_ATUALIZADO";
+    public static final String ACAO_CONECTAR = "com.henrique.gamesentinel.CONECTAR";
+    public static final String ACAO_DESCONECTAR = "com.henrique.gamesentinel.DESCONECTAR";
+    public static final String ACAO_STATUS_ATUALIZADO = "com.henrique.gamesentinel.STATUS_ATUALIZADO";
     public static final String EXTRA_STATUS = "extra_status";
 
     public enum Status {
@@ -115,7 +115,7 @@ public class AlarmForegroundService extends Service {
     private void adquirirWakeLock() {
         if (wakeLock != null && wakeLock.isHeld()) return;
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OwAlarm::ConexaoAtiva");
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "GameSentinel::ConexaoAtiva");
         wakeLock.acquire(TimeUnit.HOURS.toMillis(6));
     }
 
@@ -353,7 +353,7 @@ public class AlarmForegroundService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CANAL_ID)
-                .setContentTitle("Overwatch Match Alarm")
+                .setContentTitle("Game Sentinel")
                 .setContentText(texto)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setOngoing(true)
